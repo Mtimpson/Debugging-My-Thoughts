@@ -1,0 +1,87 @@
+Title: Angular - How to Proxy Multiple Servers
+
+### Explaining how to configure a proxy for backend API calls to multiple servers.
+
+If you are building a modern web application with Angular you will likely need to talk to a backend server.  And for many applications, you will need to talk to multiple different backend servers.  This article will help you do that.
+
+## What is a Proxy? 
+The word proxy means “to act on behalf of another” and in computer networking, a proxy server is an application that acts as an intermediary between a client requesting a resource and the server providing a resource.  
+
+## Proxying to a Backend Server:
+In Angular applications, you can use the webpack development server to divert certain URLs to a backend server by passing a file to the ```--proxy-config ```  build option.
+
+For example, to divert all calls for ``` http://localhost:4200/api ``` to a server running on ``` http://localhost:3000/api ``` follow the steps below:
+
+1. Create a file proxy.conf.json in your project’s src/ folder.
+
+2. Add the following content to the new proxy file:
+``` 
+{
+  "/api": {
+    "target": "http://localhost:3000",
+    "secure": false
+  }
+} 
+```
+
+3. In the CLI configuration file, angular.json, add the proxyConfig option to the serve target:
+``` 
+"architect": {
+  "serve": {
+    "builder": "@angular-devkit/build-angular:dev-server",
+    "options": {
+      "browserTarget": "your-application-name:build",
+      "proxyConfig": "src/proxy.conf.json"
+    },
+```
+4. To run the development server with this proxy configuration, call ng serve.
+
+Full guide here:
+https://angular.io/guide/build#proxying-to-a-backend-server
+
+## Multiple Backend Servers?
+Often when working on modern web applications your app will need the ability to reach out to many different backend servers.  No problem, the first step is to create a proxy.config.js file.  For this example we will have four APIs running on ports 8080, 8081, 8082, & 8083 all of which your app will need to talk to.  
+
+![Screen Shot 2022-02-15 at 10.14.14 PM.png](https://res.cloudinary.com/dobmpvxmb/image/upload/v1644981540/Screen_Shot_2022_02_15_at_10_14_14_PM_74541d3689.png)
+
+You only need to do two things, first add each entry to the proxy.config.js file & make sure that your APIs are running on these ports for successful communication. 
+
+``` 
+const PROXY_CONFIG = {
+   "/blog": {
+       "target": "http://localhost:8080",
+       "secure": false,
+       "changeOrigin": true,
+       "logLevel": "debug"
+   },
+   "/restapp": {
+       "target": "http://localhost:8084",
+       "secure": false,
+       "changeOrigin": true,
+       "logLevel": "debug"
+   },
+   "/products": {
+       "target": "http://localhost:8083",
+       "secure": false,
+       "changeOrigin": true,
+       "logLevel": "debug"
+   },
+   "/business": {
+       "target": "http://localhost:8081",
+       "secure": false,
+       "changeOrigin": true,
+       "logLevel": "debug",
+   }
+ 
+module.exports = PROXY_CONFIG
+```
+
+Second, add this: ``` "start": "ng serve -proxy-config proxy.config.js" ``` to the start script in your package.json.
+
+## Summary
+
+- Proxies act as an intermediary between a client requesting a resource and the server providing the resource.
+- In Angular, the proxy.config.js file is used to facilitate communication between multiple backend servers and your angular application.
+- To learn even more about building and serving Angular apps, check out the official documentation: https://angular.io/guide/build#proxy-multiple-entries
+
+February 15, 2022
